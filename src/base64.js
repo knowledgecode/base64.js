@@ -1,14 +1,86 @@
 /**
- * @preserve base64.js v0.2.0 (c) 2012 knowledgecode | MIT licensed
+ * @preserve base64.js v0.2.1 (c) 2012 knowledgecode | MIT licensed
  */
-/*global atob, btoa, escape, unescape */
+/*global escape, unescape */
 /*jslint bitwise: true, browser: true, plusplus: true */
 (function () {
     'use strict';
 
     var id = 'base64',
         m = {},
-        b64 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
+        b64e = [
+            'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
+            'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
+            'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
+            'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
+            '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '+', '/', '='
+        ],
+        b64d = {
+            'A': 0,
+            'B': 1,
+            'C': 2,
+            'D': 3,
+            'E': 4,
+            'F': 5,
+            'G': 6,
+            'H': 7,
+            'I': 8,
+            'J': 9,
+            'K': 10,
+            'L': 11,
+            'M': 12,
+            'N': 13,
+            'O': 14,
+            'P': 15,
+            'Q': 16,
+            'R': 17,
+            'S': 18,
+            'T': 19,
+            'U': 20,
+            'V': 21,
+            'W': 22,
+            'X': 23,
+            'Y': 24,
+            'Z': 25,
+            'a': 26,
+            'b': 27,
+            'c': 28,
+            'd': 29,
+            'e': 30,
+            'f': 31,
+            'g': 32,
+            'h': 33,
+            'i': 34,
+            'j': 35,
+            'k': 36,
+            'l': 37,
+            'm': 38,
+            'n': 39,
+            'o': 40,
+            'p': 41,
+            'q': 42,
+            'r': 43,
+            's': 44,
+            't': 45,
+            'u': 46,
+            'v': 47,
+            'w': 48,
+            'x': 49,
+            'y': 50,
+            'z': 51,
+            '0': 52,
+            '1': 53,
+            '2': 54,
+            '3': 55,
+            '4': 56,
+            '5': 57,
+            '6': 58,
+            '7': 59,
+            '8': 60,
+            '9': 61,
+            '+': 62,
+            '/': 63
+        };
 
     /**
      * @name encode
@@ -17,19 +89,20 @@
      * @return {string} encoded string
      */
     m.encode = (function () {
-        if (btoa) {
+        if (window.btoa) {
             return function (str) {
-                return btoa(unescape(encodeURIComponent(str)));
+                return window.btoa(unescape(encodeURIComponent(str)));
             };
         }
         return function (str) {
-            var i, j, len, a1, a2, a3, b1, b2, b3, b4, value = [];
+            var i = 0, j = 0, len, a1, a2, a3, b1, b2, b3, b4, value = [];
 
             str = unescape(encodeURIComponent(str));
-            for (i = 0, j = 0, len = str.length; i < len; i += 3) {
-                a1 = str.charCodeAt(i) || 0;
-                a2 = str.charCodeAt(i + 1) || 0;
-                a3 = str.charCodeAt(i + 2) || 0;
+            len = str.length;
+            while (i < len) {
+                a1 = str.charCodeAt(i++) || 0;
+                a2 = str.charCodeAt(i++) || 0;
+                a3 = str.charCodeAt(i++) || 0;
 
                 b1 = (a1 >> 2) & 0x3F;
                 b2 = ((a1 & 0x03) << 4) | ((a2 >> 4) & 0x0F);
@@ -42,11 +115,10 @@
                         b3 = 64;
                     }
                 }
-                value[j] = b64.charAt(b1);
-                value[j + 1] = b64.charAt(b2);
-                value[j + 2] = b64.charAt(b3);
-                value[j + 3] = b64.charAt(b4);
-                j += 4;
+                value[j++] = b64e[b1];
+                value[j++] = b64e[b2];
+                value[j++] = b64e[b3];
+                value[j++] = b64e[b4];
             }
             return value.join('');
         };
@@ -59,20 +131,21 @@
      * @return {string} decoded string
      */
     m.decode = (function () {
-        if (atob) {
+        if (window.atob) {
             return function (str) {
-                return decodeURIComponent(escape(atob(str)));
+                return decodeURIComponent(escape(window.atob(str)));
             };
         }
         return function (str) {
-            var i, j, len, b1, b2, b3, b4, a1, a2, a3, value = [];
+            var i = 0, j = 0, len, b1, b2, b3, b4, a1, a2, a3, value = [];
 
-            str = str.replace(/\=+$/, '');
-            for (i = 0, j = -1, len = str.length; i < len; i += 4) {
-                b1 = b64.indexOf(str.charAt(i));
-                b2 = b64.indexOf(str.charAt(i + 1));
-                b3 = b64.indexOf(str.charAt(i + 2));
-                b4 = b64.indexOf(str.charAt(i + 3));
+            str = str.replace(/\=+$/, '').split('');
+            len = str.length;
+            while (i < len) {
+                b1 = b64d[str[i++]] || '';
+                b2 = b64d[str[i++]] || '';
+                b3 = b64d[str[i++]] || '';
+                b4 = b64d[str[i++]] || '';
 
                 a1 = ((b1 & 0x3F) << 2) | ((b2 >> 4) & 0x03);
                 a2 = ((b2 & 0x0F) << 4) | ((b3 >> 2) & 0x0F);
